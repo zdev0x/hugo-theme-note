@@ -10,20 +10,14 @@
   <div class="bg-card rounded-2xl border border-border shadow-sm px-5 py-8 md:px-12 md:py-12">
     <article class="text-foreground">
       <div id="markdown">
-        <p>这里放一些常看的博客和朋友的站点。想交换链接，欢迎通过联系页面告诉我。</p>
+        {{ .Content }}
         <div class="my-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <a class="tile-link block rounded-xl border border-border bg-secondary p-6 transition-[border-color,transform,background-color] duration-200 ease-out hover:border-hairline-strong hover:-translate-y-0.5" href="https://example.org/" target="_blank" rel="noopener">
-            <div class="text-lg font-medium text-foreground">示例博客联盟</div>
-            <div class="mt-1 text-sm text-muted-foreground">提交博客，申请友链</div>
+          {{ range .Params.links }}
+          <a class="tile-link block rounded-xl border border-border bg-secondary p-6 transition-[border-color,transform,background-color] duration-200 ease-out hover:border-hairline-strong hover:-translate-y-0.5" href="{{ .url }}" target="_blank" rel="noopener">
+            <div class="text-lg font-medium text-foreground">{{ .name }}</div>
+            <div class="mt-1 text-sm text-muted-foreground">{{ .desc }}</div>
           </a>
-          <a class="tile-link block rounded-xl border border-border bg-secondary p-6 transition-[border-color,transform,background-color] duration-200 ease-out hover:border-hairline-strong hover:-translate-y-0.5" href="https://example.org/" target="_blank" rel="noopener">
-            <div class="text-lg font-medium text-foreground">博友圈示例</div>
-            <div class="mt-1 text-sm text-muted-foreground">博客人的专属朋友圈</div>
-          </a>
-          <a class="tile-link block rounded-xl border border-border bg-secondary p-6 transition-[border-color,transform,background-color] duration-200 ease-out hover:border-hairline-strong hover:-translate-y-0.5" href="/contact/">
-            <div class="text-lg font-medium text-foreground">联系我们</div>
-            <div class="mt-1 text-sm text-muted-foreground">Email 与留言方式</div>
-          </a>
+          {{ end }}
         </div>
       </div>
     </article>
