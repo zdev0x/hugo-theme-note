@@ -237,6 +237,17 @@ CI 若未预装 Hugo，可用 `peaceiris/actions-hugo` 安装 Extended 版，并
 > [!TIP]
 > `npm run dev` 不跑 Pagefind，搜索为空属预期；验证搜索请用 `npm run build && npm run preview`。
 
+### 站点参数速查
+
+| 参数 | 默认值 | 用途 |
+|---|---|---|
+| `cjkWordsPerMinute` | `400` | 阅读时长估算 |
+| `codeCopy` | `true` | 代码块复制按钮 |
+| `assetsVersion` | — | 追加到 CSS / JS 链接的版本号，用于绕过 CDN 缓存 |
+| `homeInfo` | — | 首页简介 |
+
+主题只读取这些参数，不拥有站点内容；行号由站点 `[markup.highlight] lineNos = "inline"` 控制。
+
 ---
 
 ## 贡献指南
@@ -283,3 +294,4 @@ CI 若未预装 Hugo，可用 `peaceiris/actions-hugo` 安装 Extended 版，并
 | [README](../README.md) | 项目概览与快速入口 |
 | [使用手册](USAGE.md) | 使用者：搭建、配置、写作、部署 |
 | [二次开发手册](DEVELOPMENT.md) | 开发者：模板、样式、扩展与贡献 |
+| [更新日志](../CHANGELOG.md) | 所有读者：版本记录 |

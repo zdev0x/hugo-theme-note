@@ -9,13 +9,13 @@
 [![Pagefind](https://img.shields.io/badge/Pagefind-local%20search-f97316)](https://pagefind.app)
 [![License](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
 
-[演示站](https://dahai.me) · [使用手册](docs/USAGE.md) · [二次开发手册](docs/DEVELOPMENT.md) · [致谢](#致谢) · [许可](#许可)
+[演示站](https://dahai.me) · [特性](#特性) · [快速开始](#快速开始) · [文档导航](#文档导航) · [更新与覆盖](#更新与覆盖) · [贡献](#贡献) · [致谢](#致谢) · [许可](#许可)
 
 </div>
 
 ---
 
-根目录即主题（`theme.toml`、`layouts/`、`assets/`、`static/`），`exampleSite/` 是可直接运行的演示站。视觉与交互参考 [u.sb（烧饼博客）](https://u.sb)的[设计规范](https://u.sb/design/)，由 Hugo 独立实现。
+根目录即主题根：`theme.toml`、`layouts/`、`assets/`、`static/` 构成主题本体，`exampleSite/` 是可直接运行的演示站，**真实内容不要写进主题仓库**。视觉与交互参考 [u.sb（烧饼博客）](https://u.sb)的[设计规范](https://u.sb/design/)，由 Hugo 独立实现。
 
 > [!NOTE]
 > 本项目为学习性质的非官方移植，未使用原站的文章、品牌、Logo 或字体文件。公开发布前请先阅读[致谢](#致谢)。
@@ -28,6 +28,7 @@
 | **搜索** | Pagefind 本地全文索引，`Ctrl/⌘ + K` 打开、`ESC` 关闭，无外部服务 |
 | **页面** | 卡片首页、标签云、年月归档、友链、独立页、自定义 404 |
 | **文章** | TOC、CJK 字数与阅读时长、许可卡片、分享、上一篇 / 下一篇 |
+| **交互** | 正文链接波浪线、全局 Tooltip、星空粒子与鼠标轨迹、代码块复制按钮与行号 |
 | **输出** | Atom feed、Open Graph / Twitter Card、JSON-LD |
 | **其它** | 响应式、静态资源自托管、无 CDN 依赖 |
 
@@ -35,12 +36,12 @@
 
 | 依赖 | 版本 | 用途 |
 |---|---|---|
-| Hugo **Extended** | v0.170+ | 站点构建 |
+| Hugo **Extended** | v0.170+ | 站点构建；`theme.toml` 的 `min_version` 同此值 |
 | Node.js | 20+ | 编译 Tailwind CSS；仓库构建脚本用它调用 Pagefind |
 | npm | 随 Node.js 安装 | 安装与管理构建依赖 |
 
 > [!TIP]
-> 样式已预编译：**只用 Hugo 即可获得完整样式**。仅改 CSS 源码才需要 Node.js / npm；搜索索引也可借助无需 Node 的 Pagefind 二进制生成，详见[使用手册 · 只换主题需要 Node 吗](docs/USAGE.md#只换主题需要-node-吗)。
+> 样式已预编译：`static/css/main.css` 随仓库提交，**只用 Hugo 即可获得完整样式**。仅改 CSS 源码才需要 Node.js / npm；搜索索引也可用无需 Node 的 Pagefind 二进制生成，见[使用手册 · 只换主题需要 Node 吗](docs/USAGE.md#只换主题需要-node-吗)。
 
 ## 构建工具
 
@@ -60,8 +61,9 @@
 
 | 文档 | 适合谁 | 内容 |
 |---|---|---|
-| [📖 使用手册](docs/USAGE.md) | 使用者 | 快速开始、配置、内容管理、搜索、构建与部署、FAQ |
+| [📖 使用手册](docs/USAGE.md) | 使用者 | 安装 / 更新、配置、内容管理、搜索、构建部署、FAQ |
 | [🛠️ 二次开发手册](docs/DEVELOPMENT.md) | 开发者 | 构建链路、模板与样式系统、扩展点、贡献指南 |
+| [📋 更新日志](CHANGELOG.md) | 所有读者 | 版本记录与变更说明 |
 
 ## 快速开始
 
@@ -74,7 +76,7 @@ npm install
 npm run dev          # http://localhost:1313
 ```
 
-`npm run dev` 会监听 CSS 改动并自动重编译。
+`npm run dev` 同时启动 Tailwind 的 `--watch` 与 Hugo 开发服务器，改样式自动重编译。
 
 ### 接入自己的站点
 
@@ -89,14 +91,29 @@ npm run dev          # http://localhost:1313
    git submodule add https://github.com/zdev0x/hugo-theme-note.git themes/note
    ```
 
-2. 在站点配置中启用，并合并 `exampleSite/hugo.toml` 的 `[params]`、`[menu.main]`、`[pagination]`、`[taxonomies]`、`[outputs]` 等配置块。
+2. 在站点配置中启用 `theme = "note"`（Module 方式写完整仓库路径），并合并 `exampleSite/hugo.toml` 的配置块：`[params]`、`[menu.main]`、`[pagination]`、`[taxonomies]`、`[outputs]`、`[mediaTypes]`、`[outputFormats.Atom]`。
 
-3. 写自己的 `content/posts/`，按需替换图片。
+3. 写自己的 `content/posts/`，按需替换站点根目录的 `static/images/`。
 
 完整步骤见 [使用手册 · 快速开始](docs/USAGE.md#快速开始)。
 
 > [!IMPORTANT]
 > 搜索索引需单独生成，`npm run dev` 下弹窗为空属预期行为。
+
+## 更新与覆盖
+
+| 场景 | 做法 |
+|---|---|
+| 更新主题 | Hugo Module：`hugo mod get -u github.com/zdev0x/hugo-theme-note`；submodule：`git submodule update --remote themes/note` |
+| 换 Logo / OG 图 | 在**自己的站点**放同名文件到 `static/images/`，站点文件优先于主题文件 |
+| 改样式 | 建议在自己站点用同名模板/资源覆盖；改主题源码后须重跑 `npm run build:css` 并提交编译产物 |
+| 加页面类型 | front matter 写 `type: "xxx"`，再建 `layouts/xxx/single.html` |
+
+详见 [使用手册 · 更新与覆盖](docs/USAGE.md#更新与覆盖) 与 [二次开发手册 · 常用扩展点](docs/DEVELOPMENT.md#常用扩展点)。
+
+## 贡献
+
+欢迎 Issue 与 Pull Request。提交前请遵循语义化提交信息，并按[二次开发手册 · 贡献指南](docs/DEVELOPMENT.md#贡献指南)的清单自查。
 
 ---
 
@@ -115,4 +132,5 @@ npm run dev          # http://localhost:1313
 
 MIT 仅覆盖本仓库代码，**不覆盖 u.sb 的视觉设计与品牌权益**；`exampleSite/content/` 与 `static/images/` 中的示例内容为占位素材。公开发布或商用前请先阅读「致谢」。
 
+> [!NOTE]
 > 仓库 topics 建议：`hugo-theme`, `hugo`, `tailwindcss`, `pagefind`, `dark-mode`, `blog`。

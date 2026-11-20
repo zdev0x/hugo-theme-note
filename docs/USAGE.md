@@ -133,6 +133,36 @@ npm run dev          # http://localhost:1313
 > [!IMPORTANT]
 > 搜索索引只在 `npm run build` 时生成，`dev` 下弹窗为空属预期行为。
 
+## 更新与覆盖
+
+**更新主题**
+
+```bash
+# Hugo Module
+hugo mod get -u github.com/zdev0x/hugo-theme-note
+
+# git submodule
+git submodule update --remote themes/note
+
+# 直接复制：重新拷贝主题文件，注意保留自己的内容
+```
+
+更新后重新执行 `hugo` 构建并生成 Pagefind 索引。
+
+**覆盖主题文件**
+
+Hugo 会按「站点根目录 → 主题目录」的顺序查找模板与静态资源：站点根目录的同名文件优先。因此无需修改主题即可覆盖：
+
+| 想改什么 | 在站点根目录放什么 |
+|---|---|
+| Logo / OG 图 | `static/images/logo-black.svg`、`logo-white.svg`、`og-placeholder.svg` |
+| 样式 | `static/css/main.css`（需自行编译 Tailwind，或覆盖后手工维护） |
+| 页面结构 | `layouts/` 下与主题同路径的模板，例如 `layouts/_default/single.html` |
+| 搜索弹窗 | `layouts/partials/search.html` 与 `static/js/search.js` |
+
+> [!TIP]
+> 覆盖样式时建议改主题源码后重编译，而不是直接改产物；否则主题更新会让你丢失定制。详见[二次开发手册 · 常用扩展点](DEVELOPMENT.md#常用扩展点)。
+
 ---
 
 ## 配置详解
@@ -259,7 +289,22 @@ lastmod: "2026-02-01"
 ### 其他页面
 
 - **独立页**：在 `content/` 下建 `xxx.md`，路径为 `/xxx/`。
-- **友链页**：复制 `content/links.md`，保留 `type: "links"`，按 Markdown 列表写链接。
+- **友链页**：复制一份 `links.md`，保留 `type: "links"`，把链接写进 front matter 的 `links` 数组：
+
+  ```markdown
+  ---
+  title: "友链"
+  type: "links"
+  date: "2026-01-01"
+  draft: false
+  links:
+    - name: "示例博客"
+      url: "https://example.org/"
+      desc: "一句话介绍"
+  ---
+  ```
+
+  `name` 显示为标题，`url` 为跳转地址，`desc` 为副标题；模板会渲染成两列卡片。
 - **归档页**：由 `content/archives/_index.md` 提供，按年月自动归集文章。
 
 ---
@@ -276,6 +321,22 @@ lastmod: "2026-02-01"
 
 > [!WARNING]
 > 索引由 Pagefind 在 `npm run build` 时生成。仅用 `npm run dev` 时弹窗为空属正常现象；本地测试搜索请运行 `npm run build && npm run preview`。作为主题使用时，索引生成方式见[只换主题需要 Node 吗](#只换主题需要-node-吗)。
+
+### 代码块
+
+代码块为固定深色面，鼠标移入时右上角出现复制按钮；按钮由 `params.codeCopy` 控制（默认 `true`，设为 `false` 关闭）。
+
+行号由 Hugo 的 Chroma 生成。需要在站点配置里开启：
+
+```toml
+[markup.highlight]
+  lineNos = "inline"
+```
+
+只想给个别代码块加行号时，可在代码围栏的信息串上写 `{linenos=inline}`。复制时会过滤行号，不会把数字带进剪贴板。
+
+> [!NOTE]
+> `inline` 方式不会撑乱布局；主题样式已适配，`table` 方式不建议使用。
 
 ---
 
@@ -393,6 +454,27 @@ Pagefind 默认索引整个 `<body>`。给正文容器加 `data-pagefind-body` �
 
 </details>
 
+<details>
+<summary><b>怎么加友链？</b></summary>
+
+在 `content/links.md` 的 front matter 里维护 `links` 数组，每项写 `name`、`url`、`desc`，模板会自动渲染成卡片，见[其他页面](#其他页面)。
+
+</details>
+
+<details>
+<summary><b>代码块行号与复制按钮怎么控制？</b></summary>
+
+行号在站点 `[markup.highlight]` 设 `lineNos = "inline"` 全站开启，或用 `{linenos=inline}` 按块开启；复制按钮由 `params.codeCopy` 控制，见[代码块](#代码块)。
+
+</details>
+
+<details>
+<summary><b>更新主题后我的定制没了？</b></summary>
+
+直接改主题仓库里的文件会在更新时被覆盖。把 Logo、样式或模板放到**自己站点根目录**的同名路径来覆盖，见[更新与覆盖](#更新与覆盖)。
+
+</details>
+
 ---
 
 ## 相关文档
@@ -402,3 +484,4 @@ Pagefind 默认索引整个 `<body>`。给正文容器加 `data-pagefind-body` �
 | [README](../README.md) | 项目概览与快速入口 |
 | [使用手册](USAGE.md) | 使用者：搭建、配置、写作、部署 |
 | [二次开发手册](DEVELOPMENT.md) | 开发者：模板、样式、扩展与贡献 |
+| [更新日志](../CHANGELOG.md) | 所有读者：版本记录 |
