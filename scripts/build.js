@@ -49,7 +49,7 @@ if (task === 'css') {
   css();
 } else if (task === 'build' || task === 'preview') {
   css();
-  run(hugo, ['build', '--source', siteDir, '--cleanDestinationDir']);
+  run(hugo, ['build', '--source', siteDir, '--cleanDestinationDir', '--minify']);
   run(process.execPath, [pagefindCli, '--site', publicDir]);
 } else if (task === 'dev') {
   css();
