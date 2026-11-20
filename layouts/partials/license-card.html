@@ -1,0 +1,31 @@
+{{/* Article info card — mirrors u.sb's license-card structure.
+     Values use site-safe placeholders (no copied brand/author/shortlink). */}}
+{{ $author := .Site.Params.author | default "博主" }}
+{{ $pub := .Date.Format "2006 年 1 月 2 日" }}
+{{ $edited := .Date.Format "2006 年 1 月 2 日" }}
+{{ with .Lastmod }}{{ $edited = .Format "2006 年 1 月 2 日" }}{{ end }}
+<div class="license-card mt-6 md:mt-8 rounded-2xl border border-border shadow-sm bg-secondary overflow-hidden relative p-6 md:px-12 md:py-8">
+  <div class="relative z-10">
+    <div class="flex flex-col lg:flex-row gap-6 lg:gap-10">
+      <div class="flex-1 min-w-0">
+        <div class="font-medium text-foreground">{{ .Title }}</div>
+        <div class="mt-1">
+          <a class="font-mono text-sm text-muted-foreground hover:text-foreground dark:hover:text-(--link-wave) underline underline-offset-4 decoration-border transition-colors" href="{{ .Permalink }}">{{ .Permalink }}</a>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-[auto_auto_auto_auto] sm:justify-start gap-x-10 gap-y-4 mt-5 text-foreground">
+          <div class="flex flex-col gap-0.5"><div class="text-xs text-muted-foreground">无责任编辑</div><div class="text-[15px]">{{ $author }}</div></div>
+          <div class="flex flex-col gap-0.5"><div class="text-xs text-muted-foreground">发布时间</div><div class="text-[15px] whitespace-nowrap">{{ $pub }}</div></div>
+          <div class="flex flex-col gap-0.5"><div class="text-xs text-muted-foreground">最后编辑时间</div><div class="text-[15px] whitespace-nowrap">{{ $edited }}</div></div>
+          <div class="flex flex-col gap-0.5"><div class="text-xs text-muted-foreground">版权协议</div><div class="text-[15px]"><a class="text-inherit no-underline hover:text-(--link-wave) transition-colors" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-SA</a></div></div>
+        </div>
+        {{ with .Params.tags }}
+        <div class="mt-6 flex flex-wrap gap-2">
+          {{ range . }}<a href="/tags/{{ . | urlize }}/" aria-label="标签 {{ . }}" class="inline-flex items-center rounded-full font-medium border border-border text-muted-foreground px-3 py-1 text-sm hover:bg-secondary hover:text-foreground transition-colors">#{{ . }}</a>{{ end }}
+        </div>
+        {{ end }}
+      </div>
+    </div>
+    {{/* u.sb keeps the share row inside the license card, separated by a hairline */}}
+    {{ partial "share.html" . }}
+  </div>
+</div>

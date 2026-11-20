@@ -1,0 +1,29 @@
+{{/* Usage: {{ partial "card.html" (dict "page" . "featured" true) }} — or pass a page directly for normal card */}}
+{{ $featured := false }}
+{{ $p := . }}
+{{ if (hasPrefix (printf "%T" .) "map") }}
+  {{ $p = .page }}
+  {{ $featured = .featured | default false }}
+{{ end }}
+{{ $classes := "group relative flex flex-col rounded-2xl border border-border bg-card shadow-sm transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md hover:border-hairline-strong motion-reduce:transition-none motion-reduce:hover:translate-y-0 p-6 md:p-7" }}
+{{ if $featured }}
+  {{ $classes = "group relative flex flex-col rounded-2xl border border-border bg-card shadow-sm transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md hover:border-hairline-strong motion-reduce:transition-none motion-reduce:hover:translate-y-0 md:col-span-2 p-6 md:p-10 lg:grid lg:grid-cols-[minmax(0,1fr)_26rem] xl:grid-cols-[minmax(0,1fr)_30rem] lg:gap-x-12" }}
+{{ end }}
+<article class="{{ $classes }}">
+  <h2 class="font-medium tracking-tight text-foreground {{ if $featured }}text-2xl md:text-4xl leading-snug lg:col-start-1{{ else }}text-xl md:text-2xl leading-snug{{ end }}">
+    <a href="{{ $p.RelPermalink }}" class="hover:text-foreground">{{ $p.Title }}</a>
+  </h2>
+  <div class="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-xs text-muted-foreground {{ if $featured }}lg:col-start-1{{ end }}">
+    <time datetime="{{ $p.Date.Format "2006-01-02T15:04:05.000Z" }}">{{ partial "date-label.html" $p }}</time>
+    <span class="hidden sm:inline-flex items-center gap-x-2.5">
+      <span aria-hidden="true" class="text-muted-foreground/50">&middot;</span>
+      {{ partial "cjk-info.html" (dict "page" $p "compact" true) }}
+    </span>
+  </div>
+  <p class="mt-3.5 text-[15px] leading-relaxed text-muted-foreground {{ if $featured }}line-clamp-3 lg:line-clamp-4 lg:col-start-2 lg:row-start-1 lg:row-span-3 lg:self-center lg:mt-0{{ else }}line-clamp-2{{ end }}">{{ $p.Summary | plainify }}</p>
+  <div class="mt-auto pt-6 flex flex-wrap gap-2 {{ if $featured }}lg:col-start-1{{ end }}">
+    {{ range $p.Params.tags }}
+    <a href="/tags/{{ . | urlize }}/" aria-label="标签 {{ . }}" class="inline-flex items-center rounded-full font-medium border border-border text-muted-foreground px-2.5 py-0.5 text-xs relative bg-card hover:bg-secondary hover:text-foreground transition-colors">#{{ . }}</a>
+    {{ end }}
+  </div>
+</article>

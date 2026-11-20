@@ -1,0 +1,52 @@
+{{ define "main" }}
+<div class="max-w-[1080px] mx-auto px-5 md:px-6 pb-8 md:pb-10 pt-10">
+  <header class="relative overflow-hidden text-center mb-10">
+    {{ partial "sparkle.html" . }}
+    <div class="relative z-10">
+      {{ if .Data.Terms }}
+      {{/* ===== Taxonomy index: /tags/ — tag cloud grouped by initial ===== */}}
+      {{ $taxTitle := .Title }}
+      {{ if eq (lower $taxTitle) "tags" }}{{ $taxTitle = "标签" }}{{ else if eq (lower $taxTitle) "categories" }}{{ $taxTitle = "分类" }}{{ end }}
+      <h1 class="text-3xl md:text-4xl font-medium tracking-tight text-foreground">{{ $taxTitle }}</h1>
+      <p class="mt-3 text-[15px] text-muted-foreground">本博客无分类，所有文章均以标签归类</p>
+      <p class="mt-1 font-mono text-sm text-muted-foreground">共 {{ len .Data.Terms }} 个标签 · {{ len (where site.RegularPages "Section" "posts") }} 篇文章</p>
+      {{ else }}
+      {{/* ===== Term page: /tags/xxx/ — articles with this tag ===== */}}
+      <h1 class="text-3xl md:text-4xl font-medium tracking-tight text-foreground">标签 「{{ .Title }}」</h1>
+      <p class="mt-3 font-mono text-sm text-muted-foreground">共 {{ len .Pages }} 篇文章</p>
+      {{ end }}
+    </div>
+  </header>
+
+  {{ if .Data.Terms }}
+  {{/* Tag cloud, grouped by the first character of each term */}}
+  {{ $groups := slice }}
+  {{ range $term := .Data.Terms.Alphabetical }}
+    {{ $name := $term.Page.LinkTitle }}
+    {{ $initial := upper (substr $name 0 1) }}
+    {{ $groups = $groups | append (dict "initial" $initial "name" $name "count" $term.Count "url" $term.Page.RelPermalink) }}
+  {{ end }}
+  {{ $n := len $groups }}
+  <div class="mt-10 divide-y divide-border">
+    {{ range $i, $g := $groups }}
+      {{ if or (eq $i 0) (ne $g.initial (index $groups (sub $i 1)).initial) }}
+      <section class="py-7 md:grid md:grid-cols-[5rem_1fr] md:gap-8">
+        <div class="font-mono text-2xl text-muted-foreground/60 mb-3 md:mb-0 md:pt-0.5 select-none">{{ $g.initial }}</div>
+        <div class="flex flex-wrap gap-2.5">
+      {{ end }}
+        <a href="{{ $g.url }}" aria-label="标签 {{ $g.name }}" class="inline-flex items-center rounded-full font-medium border border-border text-muted-foreground px-3 py-1 text-sm gap-1.5 hover:bg-secondary hover:text-foreground transition-colors"><span>{{ $g.name }}</span><span class="font-mono text-xs text-muted-foreground/70">{{ $g.count }}</span></a>
+      {{ if or (eq (add $i 1) $n) (ne $g.initial (index $groups (add $i 1)).initial) }}
+        </div>
+      </section>
+      {{ end }}
+    {{ end }}
+  </div>
+  {{ else }}
+  <div class="mt-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+      {{ range $p := .Pages }}{{ partial "card.html" $p }}{{ end }}
+    </div>
+  </div>
+  {{ end }}
+</div>
+{{ end }}

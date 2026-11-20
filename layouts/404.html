@@ -1,0 +1,8 @@
+{{ define "main" }}
+<div class="max-w-[1080px] mx-auto px-5 md:px-6 py-24 text-center">
+  <div class="text-7xl font-medium text-foreground">404</div>
+  <p class="mt-4 text-lg text-muted-foreground">这个页面走丢了</p>
+  <p class="mt-2 text-sm text-muted-foreground">你访问的地址不存在，或已被移动。</p>
+  <a href="{{ "/" | relURL }}" class="mt-8 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary-hover px-6 py-2 text-sm font-medium transition-colors">返回首页</a>
+</div>
+{{ end }}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Open Graph placeholder">
+  <rect width="1200" height="630" fill="#f5f5f5"/>
+  <rect x="80" y="240" width="90" height="90" rx="24" fill="#292524"/>
+  <path d="M104 268h42M104 285h30M104 302h42" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+  <text x="210" y="300" font-family="sans-serif" font-size="68" font-weight="500" fill="#0c0a09">我的博客</text>
+  <text x="212" y="360" font-family="sans-serif" font-size="30" fill="#777169">记录技术学习与生活思考</text>
+</svg>

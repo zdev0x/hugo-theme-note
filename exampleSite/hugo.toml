@@ -1,0 +1,52 @@
+# 演示站点域名；复用本主题时请改成自己的域名
+baseURL = "https://dahai.me/"
+locale = "zh-CN"
+title = "我的博客"
+enableEmoji = true
+[pagination]
+  pagerSize = 6
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+[outputs]
+  home = ["HTML", "Atom"]
+
+[mediaTypes."application/atom+xml"]
+  suffixes = ["xml"]
+
+[outputFormats.Atom]
+  mediaType = "application/atom+xml"
+  baseName = "atom"
+  isPlainText = false
+  noUgly = true
+  rel = "alternate"
+
+[params]
+  author = "博主"
+  description = "一个用 Hugo 搭建的个人博客"
+  cjkWordsPerMinute = 400
+  homeInfo = "记录技术学习与生活思考"
+
+[menu]
+  [[menu.main]]
+    name = "首页"
+    url = "/"
+    weight = 10
+  [[menu.main]]
+    name = "标签"
+    url = "/tags/"
+    weight = 30
+  [[menu.main]]
+    name = "归档"
+    url = "/archives/"
+    weight = 40
+  [[menu.main]]
+    name = "友链"
+    url = "/links/"
+    weight = 50
+  [[menu.main]]
+    name = "关于"
+    url = "/about/"
+    weight = 60

@@ -1,0 +1,22 @@
+{{- $pages := where site.RegularPages "Section" "posts" -}}
+{{- $mostRecent := 0 -}}
+{{- range $pages }}{{ if gt .Date.Unix $mostRecent }}{{ $mostRecent = .Date.Unix }}{{ end }}{{ end -}}
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\"?>" | safeHTML }}
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>{{ site.Title }}</title>
+  <subtitle>{{ site.Params.description }}</subtitle>
+  <link href="{{ site.BaseURL }}" rel="self"/>
+  <link href="{{ site.BaseURL }}"/>
+  <updated>{{ time ($mostRecent) | time.Format "2006-01-02T15:04:05Z07:00" }}</updated>
+  <id>{{ site.BaseURL }}</id>
+  <author><name>{{ site.Params.author }}</name></author>
+  {{ range first 20 $pages }}
+  <entry>
+    <title>{{ .Title }}</title>
+    <link href="{{ .Permalink }}"/>
+    <id>{{ .Permalink }}</id>
+    {{ with .Date }}<published>{{ .Format "2006-01-02T15:04:05Z07:00" }}</published><updated>{{ .Format "2006-01-02T15:04:05Z07:00" }}</updated>{{ end }}
+    <summary>{{ .Summary | plainify | htmlEscape }}</summary>
+  </entry>
+  {{ end }}
+</feed>

@@ -1,0 +1,38 @@
+<header class="fixed top-0 left-0 right-0 z-[9999] h-16 bg-background/85 backdrop-blur-md border-b border-border">
+  <div class="max-w-[1200px] mx-auto h-full px-5 md:px-6 flex justify-between items-center">
+    <a href="{{ "/" | relURL }}" aria-label="{{ .Site.Title }}" class="flex items-center gap-2.5 shrink-0">
+      <img src="/images/logo-black.svg" alt="" class="h-7 w-auto dark:hidden">
+      <img src="/images/logo-white.svg" alt="" class="h-7 w-auto hidden dark:block">
+      <span class="text-lg font-medium tracking-tight text-foreground">{{ .Site.Title }}</span>
+    </a>
+
+    <div class="flex items-center gap-0.5">
+      <nav id="site-nav" class="flex flex-col md:flex-row absolute md:relative top-16 md:top-auto left-0 right-0 bg-background md:bg-transparent border-b border-border md:border-0 shadow-lg md:shadow-none px-6 py-3 md:p-0 gap-1 md:gap-0 transition-[opacity,transform,visibility] duration-300 ease-in-out md:opacity-100 md:visible md:translate-y-0 md:pointer-events-auto -translate-y-full opacity-0 invisible pointer-events-none">
+        {{ range .Site.Menus.main }}
+        {{ $active := eq $.RelPermalink .URL }}
+        <a href="{{ .URL | relURL }}" {{ if $active }}aria-current="page"{{ end }}
+           class="text-[15px] font-medium rounded-full px-3 py-1.5 hover:bg-secondary md:hover:bg-transparent transition-colors {{ if $active }}text-foreground{{ else }}text-muted-foreground hover:text-foreground{{ end }}">
+          <span {{ if $active }}class="nav-active"{{ end }}>{{ .Name }}</span>
+        </a>
+        {{ end }}
+        {{ range $slug, $name := (dict "contact" "联系" "donate" "捐赠" "brand" "品牌" "design" "设计" "disclaimer" "免责声明") }}
+        <a href="/{{ $slug }}/" class="text-[15px] font-medium text-muted-foreground hover:text-foreground rounded-full px-3 py-1.5 hover:bg-secondary md:hover:bg-transparent transition-colors"><span>{{ $name }}</span></a>
+        {{ end }}
+      </nav>
+
+      <a href="{{ "/atom.xml" | relURL }}" target="_blank" aria-label="RSS Feed" class="inline-flex items-center justify-center rounded-full p-2 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-[18px] h-[18px]" aria-hidden="true"><path d="M3.75 4.5a.75.75 0 0 1 .75-.75c8.284 0 15 6.716 15 15a.75.75 0 0 1-1.5 0c0-7.456-6.044-13.5-13.5-13.5a.75.75 0 0 1-.75-.75Zm0 5.25a.75.75 0 0 1 .75-.75c5.385 0 9.75 4.365 9.75 9.75a.75.75 0 0 1-1.5 0c0-4.556-3.694-8.25-8.25-8.25a.75.75 0 0 1-.75-.75ZM5 17.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"/></svg>
+      </a>
+      <button id="search-open" aria-label="搜索" class="inline-flex items-center justify-center rounded-full p-2 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-[18px] h-[18px]" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+      </button>
+      <button id="theme-toggle" aria-label="切换主题" class="inline-flex items-center justify-center rounded-full p-2 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+        <svg class="icon-sun w-[18px] h-[18px] hidden dark:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/></svg>
+        <svg class="icon-moon w-[18px] h-[18px] block dark:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/></svg>
+      </button>
+      <button id="nav-toggle" aria-label="展开菜单" class="md:hidden flex p-2.5 ml-1 items-center text-foreground rounded-full hover:bg-secondary transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5" aria-hidden="true"><path stroke-linecap="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+      </button>
+    </div>
+  </div>
+</header>

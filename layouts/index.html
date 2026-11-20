@@ -1,0 +1,40 @@
+{{ define "main" }}
+{{ $paginator := .Paginate (where site.RegularPages "Section" "posts") }}
+<div class="relative">
+  {{ partial "sparkle.html" . }}
+  <div class="relative z-10 max-w-[1080px] mx-auto px-5 md:px-6 pb-8 md:pb-10 pt-10">
+    <div class="mb-10 text-center">
+      <h1 class="text-3xl md:text-4xl font-medium tracking-tight text-foreground">{{ .Site.Title }}</h1>
+      <p class="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-base md:text-lg text-muted-foreground">{{ .Site.Params.homeInfo }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+      {{ range $i, $p := $paginator.Pages }}
+        {{ if eq $i 0 }}
+          {{ partial "card.html" (dict "page" $p "featured" true) }}
+        {{ else }}
+          {{ partial "card.html" $p }}
+        {{ end }}
+      {{ end }}
+    </div>
+
+    {{ if gt $paginator.TotalPages 1 }}
+    <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="分页">
+      {{ with $paginator.Prev }}
+      <a href="{{ .URL }}" class="inline-flex items-center justify-center rounded-full font-medium text-sm w-[38px] h-[38px] border border-hairline-strong text-foreground hover:bg-secondary transition-colors" aria-label="上一页">&laquo;</a>
+      {{ end }}
+      {{ range $pg := $paginator.Pagers }}
+        {{ if eq $pg.PageNumber $paginator.PageNumber }}
+        <span class="inline-flex items-center justify-center rounded-full font-medium text-sm w-[38px] h-[38px] bg-primary text-primary-foreground" aria-current="page">{{ $pg.PageNumber }}</span>
+        {{ else }}
+        <a href="{{ $pg.URL }}" class="inline-flex items-center justify-center rounded-full font-medium text-sm w-[38px] h-[38px] border border-hairline-strong text-foreground hover:bg-secondary transition-colors">{{ $pg.PageNumber }}</a>
+        {{ end }}
+      {{ end }}
+      {{ with $paginator.Next }}
+      <a href="{{ .URL }}" class="inline-flex items-center justify-center rounded-full font-medium text-sm w-[38px] h-[38px] border border-hairline-strong text-foreground hover:bg-secondary transition-colors" aria-label="下一页">&raquo;</a>
+      {{ end }}
+    </nav>
+    {{ end }}
+  </div>
+</div>
+{{ end }}

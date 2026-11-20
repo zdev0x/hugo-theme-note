@@ -1,0 +1,81 @@
+<div class="fixed bottom-4 right-4 z-[9999] hidden md:flex flex-col gap-4">
+  <button id="toc-open" class="inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary-hover p-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200" aria-label="显示目录">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-6 h-6" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+  </button>
+</div>
+
+<div id="toc-modal" class="hidden fixed inset-0 z-[10000] bg-black/40 backdrop-blur-[2px]" aria-hidden="true">
+  <div id="toc-panel-wrap" class="absolute right-4 bottom-20 w-[320px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-card shadow-2xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-sm font-medium text-foreground">文章目录</span>
+      <button id="toc-close" class="inline-flex items-center justify-center rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors" aria-label="关闭目录">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4" aria-hidden="true"><path stroke-linecap="round" d="M6 18 18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="toc-list" class="max-h-[60vh] overflow-y-auto"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var open = document.getElementById('toc-open');
+  var modal = document.getElementById('toc-modal');
+  var close = document.getElementById('toc-close');
+  var wrap = document.getElementById('toc-panel-wrap');
+  var list = document.getElementById('toc-list');
+  if (!open || !modal || !list) return;
+
+  var activeClass = ['bg-primary', 'text-primary-foreground'];
+  var idleClass = ['text-muted-foreground', 'hover:text-foreground', 'hover:bg-secondary'];
+
+  function build() {
+    var heads = document.querySelectorAll('#markdown h2, #markdown h3, #markdown h4');
+    var items = [];
+    heads.forEach(function (h) {
+      if (!h.id) {
+        h.id = (h.textContent || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u4e00-\u9fa5-]/g, '');
+      }
+      items.push({ id: h.id, title: (h.textContent || '').replace(/^#\s*/, '').trim(), level: parseInt(h.tagName.charAt(1), 10) });
+    });
+    if (!items.length) {
+      list.innerHTML = '<div class="text-sm text-muted-foreground py-2">本文暂无目录</div>';
+      return;
+    }
+    var ul = document.createElement('ul');
+    ul.className = 'space-y-1 list-none';
+    items.forEach(function (it) {
+      var li = document.createElement('li');
+      li.className = 'list-none';
+      var a = document.createElement('a');
+      a.href = '#' + it.id;
+      a.dataset.tocId = it.id;
+      a.textContent = it.title;
+      a.className = 'text-sm block py-1.5 px-3 rounded-lg transition-colors ' + (it.level >= 3 ? 'ml-4 ' : '') + idleClass.join(' ');
+      a.addEventListener('click', function (e) { e.preventDefault(); document.getElementById(it.id).scrollIntoView({ behavior: 'smooth' }); hide(); });
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+    list.replaceChildren(ul);
+    highlight();
+  }
+  function highlight() {
+    var heads = document.querySelectorAll('#markdown h2[id], #markdown h3[id], #markdown h4[id]');
+    var current = null;
+    var y = window.scrollY + 100;
+    heads.forEach(function (h) { if (h.getBoundingClientRect().top + window.scrollY <= y) current = h.id; });
+    list.querySelectorAll('a').forEach(function (a) {
+      var on = current && a.dataset.tocId === current;
+      activeClass.forEach(function (c) { a.classList.toggle(c, !!on); });
+      idleClass.forEach(function (c) { a.classList.toggle(c, !on); });
+    });
+  }
+  function show() { build(); modal.classList.remove('hidden'); modal.setAttribute('aria-hidden', 'false'); }
+  function hide() { modal.classList.add('hidden'); modal.setAttribute('aria-hidden', 'true'); }
+  open.addEventListener('click', show);
+  close.addEventListener('click', hide);
+  modal.addEventListener('click', function (e) { if (e.target === modal) hide(); });
+  if (wrap) wrap.addEventListener('click', function (e) { e.stopPropagation(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+  window.addEventListener('scroll', highlight, { passive: true });
+})();
+</script>

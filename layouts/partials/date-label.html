@@ -1,0 +1,7 @@
+{{/* Published/updated date label. Consumes a Page context.
+     Shows "更新于" when a lastmod exists and differs from the publish date,
+     otherwise "发布于". Format matches u.sb exactly. */}}
+{{ $d := .Date }}
+{{ $updated := false }}
+{{ with .Lastmod }}{{ if ne (.Format "2006-01-02") ($d.Format "2006-01-02") }}{{ $updated = true }}{{ end }}{{ end }}
+{{ if $updated }}更新于 {{ .Lastmod.Format "2006 年 1 月 2 日" }}{{ else }}发布于 {{ .Date.Format "2006 年 1 月 2 日" }}{{ end }}

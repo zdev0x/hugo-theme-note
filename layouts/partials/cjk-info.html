@@ -1,0 +1,32 @@
+{{/* CJK-aware word count + reading time.
+     Consumes a Page context. Usage: {{ partial "cjk-info.html" . }}
+     Renders the article-header two-part stats: "全文约 N 字 · 预计阅读 M 分钟".
+     To render compact "N 字 · M 分钟" form, pass a dict with compact=true. */}}
+{{ $compact := false }}
+{{ $ctx := . }}
+{{ if (hasPrefix (printf "%T" .) "map") }}{{ $ctx = .page }}{{ $compact = .compact | default false }}{{ end }}
+{{ $plain := $ctx.Plain }}
+{{ $han := len (findRE `[\p{Han}]` $plain) }}
+{{ $alnum := len (findRE `[A-Za-z0-9]+` $plain) }}
+{{ $words := add $han $alnum }}
+{{ $wpm := $ctx.Site.Params.cjkWordsPerMinute | default 400 }}
+{{ $minutes := div (add $words (sub $wpm 1)) $wpm }}
+{{ if lt $minutes 1 }}{{ $minutes = 1 }}{{ end }}
+{{/* thousands separator */}}
+{{ $num := printf "%d" $words }}
+{{ $grouped := $num }}
+{{ if gt $words 999 }}
+  {{ $rev := "" }}
+  {{ $count := 0 }}
+  {{ range $i := seq (sub (len $num) 1) 0 -1 }}
+    {{ $rev = printf "%s%s" $rev (slice $num $i (add $i 1)) }}
+    {{ $count = add $count 1 }}
+    {{ if and (eq (mod $count 3) 0) (lt $i (sub (len $num) 1)) }}{{ $rev = printf "%s," $rev }}{{ end }}
+  {{ end }}
+  {{ $grouped = $rev }}
+{{ end }}
+{{ if $compact }}
+<span>{{ $grouped }} 字 · {{ $minutes }} 分钟</span>
+{{ else }}
+<span>全文约 {{ $grouped }} 字</span><span aria-hidden="true">&middot;</span><span>预计阅读 {{ $minutes }} 分钟</span>
+{{ end }}

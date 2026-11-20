@@ -1,0 +1,21 @@
+# Hugo build output & cache (exampleSite is the bundled demo site)
+exampleSite/public/
+exampleSite/resources/
+exampleSite/.hugo_build.lock
+public/
+resources/
+.hugo_build.lock
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Local-only debug artifacts (kept on disk, never published)
+preview/
+.superpowers/
+.workbuddy/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
