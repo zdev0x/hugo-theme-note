@@ -151,7 +151,9 @@ body { background: var(--color-background); color: var(--color-foreground); }
 #markdown table, #markdown pre, #markdown details { margin-top: 0; margin-bottom: 1rem; }
 /* Wavy underline, expanding on hover; mirrors u.sb's signature link treatment.
    The wave image and --link-wave variables are defined in :root / [data-theme]. */
-#markdown a {
+/* Exclude tiles / heading anchors so their own padding (e.g. Tailwind p-6)
+   is not overridden by the wave underline's padding-bottom. */
+#markdown a:not(.tile-link):not(.no-wave):not(.heading-anchor) {
   color: var(--color-foreground);
   text-decoration: none;
   background-image: var(--wave-image);
@@ -164,11 +166,11 @@ body { background: var(--color-background); color: var(--color-foreground); }
   font-weight: 500;
   transition: background-size .2s ease, color .2s ease;
 }
-#markdown a:hover { color: var(--link-wave); background-size: 20px 6px; }
-/* Tiles, explicit no-wave links, and heading anchors keep their own styling. */
-#markdown a.tile-link,
-#markdown a.no-wave,
-#markdown .heading-anchor { background-image: none; padding-bottom: 0; font-weight: inherit; }
+#markdown a:not(.tile-link):not(.no-wave):not(.heading-anchor):hover {
+  color: var(--link-wave);
+  background-size: 20px 6px;
+}
+#markdown a.tile-link { background-image: none; }
 #site-nav .nav-active {
   background-image: var(--wave-image);
   background-position: 0 100%;
@@ -357,6 +359,42 @@ html.theme-vt::view-transition-new(root) {
 }
 [data-tooltip]:hover::after,
 [data-tooltip]:hover::before { opacity: 1; visibility: visible; }
+
+/* ===== Hero sparkles (DOM-based, u.sb style) ===== */
+.sparkle-dot {
+  position: absolute;
+  width: var(--sp-size, 3px);
+  height: var(--sp-size, 3px);
+  border-radius: 9999px;
+  background: var(--sparkle);
+  pointer-events: none;
+  opacity: .15;
+  animation: sparkle-twinkle 3s ease-in-out infinite;
+}
+@keyframes sparkle-twinkle {
+  0%, 100% { opacity: .15; transform: scale(.7); }
+  50% { opacity: .9; transform: scale(1); }
+}
+.sparkle-trail {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--sparkle);
+  pointer-events: none;
+  animation: sparkle-trail-pop .65s ease-out forwards;
+}
+.sparkle-trail.is-heart {
+  background: transparent;
+  color: var(--sparkle);
+  font-size: 14px;
+  line-height: 1;
+}
+@keyframes sparkle-trail-pop {
+  0% { opacity: 0; transform: scale(.4) rotate(0); }
+  25% { opacity: .9; }
+  100% { opacity: 0; transform: scale(1) rotate(var(--tr-rot, 30deg)) translateY(8px); }
+}
 
 /* Sparkle field respects reduced motion */
 @media (prefers-reduced-motion: reduce) {

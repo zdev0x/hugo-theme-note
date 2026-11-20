@@ -4,39 +4,36 @@
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var host = document.querySelector('.hero-sparkle-field');
   if (!host) return;
-  var canvas = document.createElement('canvas');
-  host.appendChild(canvas);
-  var ctx = canvas.getContext('2d');
-  var dots = [], w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
-  function resize() {
+
+  // Percentage-based placement: no canvas measurement, works at any size.
+  for (var i = 0; i < 42; i++) {
+    var dot = document.createElement('span');
+    dot.className = 'sparkle-dot';
+    dot.style.left = (Math.random() * 100).toFixed(2) + '%';
+    dot.style.top = (Math.random() * 100).toFixed(2) + '%';
+    dot.style.setProperty('--sp-size', (2 + Math.random() * 3).toFixed(1) + 'px');
+    dot.style.animationDelay = (Math.random() * 4).toFixed(2) + 's';
+    dot.style.animationDuration = (2 + Math.random() * 3).toFixed(2) + 's';
+    host.appendChild(dot);
+  }
+
+  // Trail is limited to the top hero band, not the whole content area
+  // (otherwise it fires over code blocks, which looks wrong).
+  document.addEventListener('pointermove', function (e) {
     var r = host.getBoundingClientRect();
-    w = r.width; h = r.height;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var count = Math.min(70, Math.floor(w * h / 9000));
-    dots = Array.from({ length: count }, function () {
-      return { x: Math.random() * w, y: Math.random() * h, r: Math.random() * 1.6 + 0.4,
-               vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.15,
-               a: Math.random() * 0.5 + 0.1 };
-    });
-  }
-  function tick() {
-    ctx.clearRect(0, 0, w, h);
-    var color = getComputedStyle(document.documentElement).getPropertyValue('--sparkle').trim() || '#a8a29e';
-    dots.forEach(function (d) {
-      d.x += d.vx; d.y += d.vy;
-      if (d.x < 0 || d.x > w) d.vx *= -1;
-      if (d.y < 0 || d.y > h) d.vy *= -1;
-      ctx.globalAlpha = d.a;
-      ctx.fillStyle = color;
-      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
-    });
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(tick);
-  }
-  resize();
-  window.addEventListener('resize', resize);
-  tick();
+    var bottom = r.top + Math.min(220, r.height);
+    if (e.clientX < r.left || e.clientX > r.right ||
+        e.clientY < r.top || e.clientY > bottom) return;
+
+    var heart = Math.random() < 0.15;
+    var t = document.createElement('span');
+    t.className = 'sparkle-trail' + (heart ? ' is-heart' : '');
+    if (heart) t.textContent = '♥';
+    t.style.left = (e.clientX - r.left) + 'px';
+    t.style.top = (e.clientY - r.top) + 'px';
+    t.style.setProperty('--tr-rot', ((Math.random() - 0.5) * 60).toFixed(0) + 'deg');
+    host.appendChild(t);
+    window.setTimeout(function () { t.remove(); }, 700);
+  }, { passive: true });
 })();
 </script>
