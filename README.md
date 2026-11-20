@@ -2,7 +2,7 @@
 
 # Note
 
-**一套克制的 Hugo 博客主题 —— 卡片式布局 · 深浅双主题 · 本地全文搜索**
+**清爽的 Hugo 博客主题 —— 手机端友好 · 深浅双主题 · 本地全文搜索**
 
 [![Hugo](https://img.shields.io/badge/Hugo-Extended%20v0.170%2B-blue?logo=hugo)](https://gohugo.io)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
