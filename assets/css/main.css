@@ -190,13 +190,16 @@ body { background: var(--color-background); color: var(--color-foreground); }
 #markdown blockquote > :last-child { margin-bottom: 0; }
 #markdown hr { box-sizing: content-box; border: 0; border-bottom: 1px solid var(--color-border); margin: 2rem 0; }
 #markdown img { max-width: 100%; height: auto; border-radius: 12px; margin: 1rem auto; display: block; }
+/* Inline code: neutral warm-gray chip, matching cards and secondary panels
+   rather than the old cream-yellow code background. */
 #markdown :not(pre) > code {
   font-family: var(--font-mono);
-  background: var(--code-bg);
-  color: var(--code-fg);
-  padding: .12em .4em;
+  background: var(--color-secondary);
+  color: var(--color-foreground);
+  border: 1px solid var(--color-border);
+  padding: .1em .35em;
   border-radius: 6px;
-  font-size: .9em;
+  font-size: .88em;
 }
 #markdown pre {
   position: relative;
@@ -228,20 +231,8 @@ body { background: var(--color-background); color: var(--color-foreground); }
   pointer-events: none;
 }
 #markdown pre code { background: none; padding: 0; display: block; }
-/* Line highlight: Chroma's flex line spans, plus JS-normalized .code-line */
-#markdown pre code > span[style*="display:flex"],
-#markdown pre code > span[style*="display: flex"],
-#markdown pre code > .code-line {
-  display: block;
-  margin: 0 -1.25rem;
-  padding: 2px 1.25rem;
-  background-image: linear-gradient(90deg, #ffdb3333, #ffdb3333);
-  background-repeat: no-repeat;
-  background-size: 0 100%;
-  transition: background-size .25s ease;
-}
-#markdown pre code > span:hover { background-size: 100% 100%; }
-/* Copy button injected by main.js */
+/* Copy button injected by main.js into a wrapper outside the scrollable pre */
+.code-wrap { position: relative; }
 .code-copy {
   position: absolute;
   top: 9px;
@@ -258,7 +249,7 @@ body { background: var(--color-background); color: var(--color-foreground); }
   opacity: 0;
   transition: opacity .2s, color .2s, border-color .2s;
 }
-#markdown pre:hover .code-copy,
+.code-wrap:hover .code-copy,
 .code-copy:focus-visible { opacity: 1; }
 .code-copy:hover { color: #ffcc00; border-color: #ffcc00; }
 .code-copy.copied { color: #ffcc00; }

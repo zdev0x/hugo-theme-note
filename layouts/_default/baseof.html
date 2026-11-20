@@ -3,7 +3,7 @@
 <head>
   {{ partial "head.html" . }}
 </head>
-<body class="min-h-[100dvh] flex flex-col font-sans antialiased">
+<body class="min-h-[100dvh] flex flex-col font-sans antialiased" data-code-copy="{{ .Site.Params.codeCopy }}">
   {{ partial "header.html" . }}
   <main class="pt-16 flex-1">
     {{ block "main" . }}{{ end }}

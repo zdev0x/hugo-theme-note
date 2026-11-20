@@ -156,6 +156,7 @@ npm run dev          # http://localhost:1313
 | `description` | — | 站点描述，用于 meta description、OG、Atom subtitle |
 | `homeInfo` | — | 首页标题下方的简介 |
 | `cjkWordsPerMinute` | `400` | 中文阅读速度，用于估算阅读时长 |
+| `codeCopy` | `true` | 代码块复制按钮（固定在右上角）；设为 `false` 关闭 |
 
 ```toml
 [params]

@@ -95,37 +95,47 @@
     });
   }
 
-  // Code blocks: normalize lines for hover highlight, add a copy button.
+  // Code blocks: add a copy button unless disabled via params.codeCopy = false.
+  if (document.body.dataset.codeCopy !== 'false') {
   document.querySelectorAll('#markdown pre').forEach(function (pre) {
     var code = pre.querySelector('code');
     if (!code) return;
 
-    // Chroma emits flex line spans for highlighted code; plain fenced blocks
-    // have raw text only, so wrap each line to get the same hover cue.
-    var spans = code.children;
-    var hasLines = spans.length > 0 && Array.prototype.every.call(spans, function (el) {
-      return el.classList.contains('code-line') || (el.style && el.style.display === 'flex');
-    });
-    if (!hasLines && code.textContent.indexOf('\n') !== -1) {
-      var lines = code.textContent.replace(/\n$/, '').split('\n');
-      code.textContent = '';
-      lines.forEach(function (line) {
-        var span = document.createElement('span');
-        span.className = 'code-line';
-        span.textContent = line;
-        code.appendChild(span);
-        code.appendChild(document.createTextNode('\n'));
+    // Strip Chroma line-number spans (inline-styled with user-select:none)
+    // and preserve line breaks when copying highlighted code.
+    var codeText = function () {
+      var clone = code.cloneNode(true);
+      clone.querySelectorAll('span').forEach(function (s) {
+        var st = s.getAttribute('style') || '';
+        if (st.indexOf('user-select:none') !== -1 || s.style.userSelect === 'none') s.remove();
       });
-    }
+      var children = clone.children;
+      var isLines = children.length > 0 && Array.prototype.every.call(children, function (el) {
+        return el.style && el.style.display === 'flex';
+      });
+      if (isLines) {
+        return Array.prototype.map.call(children, function (el) {
+          return el.textContent.replace(/\n$/, '');
+        }).join('\n');
+      }
+      return clone.textContent;
+    };
 
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'code-copy';
     btn.setAttribute('data-tooltip', '复制代码');
     btn.setAttribute('aria-label', '复制代码');
+    // Pin to the top-right corner inline as well, so the button never ends up
+    // at the bottom-left of a scrollable pre element.
+    btn.style.position = 'absolute';
+    btn.style.top = '9px';
+    btn.style.right = '12px';
+    btn.style.left = 'auto';
+    btn.style.bottom = 'auto';
     btn.textContent = '复制';
     btn.addEventListener('click', function () {
-      var text = code.innerText;
+      var text = codeText();
       var done = function () {
         btn.textContent = '已复制';
         btn.classList.add('copied');
@@ -143,6 +153,15 @@
         document.body.removeChild(ta);
       }
     });
-    pre.appendChild(btn);
+    // Put the button outside the scrollable <pre>, inside a relative wrapper,
+    // so it stays pinned to the top-right of the whole code block.
+    var wrap = document.createElement('div');
+    wrap.className = 'code-wrap';
+    if (pre.parentNode) {
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+    }
+    wrap.appendChild(btn);
   });
+  }
 })();
