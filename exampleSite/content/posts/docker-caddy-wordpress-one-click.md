@@ -1,14 +1,14 @@
 ---
-title: "搬瓦工 VPS + Docker + Caddy 部署 WordPress：完整配置与一键安装脚本"
+title: "Docker + Caddy 部署 WordPress 实战"
 date: "2026-11-16T09:42:51+08:00"
 draft: false
 categories: ["家庭网络"]
 tags: ["Caddy", "Docker", "MariaDB", "Nginx", "PHP-FPM", "WordPress"]
 description: "按搬瓦工真实部署模式整理：宿主机 Caddy、Docker Nginx、PHP-FPM、MariaDB、Redis，以及 /opt/docker/blog 的完整配置和一键安装脚本。"
 ---
-这篇文章按我当前搬瓦工 VPS 的真实部署方式整理：**Caddy 运行在宿主机，Nginx、PHP-FPM、MariaDB 和 Redis 运行在 Docker 容器中。**
+这篇文章按我当前的搬瓦工 VPS 部署整理：**Caddy 运行在宿主机，Nginx、PHP-FPM、MariaDB 与 Redis 运行在 Docker 容器中。**
 
-它不是“Caddy 容器 + WordPress 官方 Apache 镜像”的简化版本。文章中的目录、镜像、端口和配置文件都与下载包中的安装脚本保持一致。
+它不是「Caddy 容器 + WordPress 官方 Apache 镜像」的简化版；文中的目录、镜像、端口与配置都和下载包中的安装脚本一致。
 
 ## 一、实际访问链路
 
@@ -28,10 +28,10 @@ MariaDB / Redis（仅 Docker 内部网络）
 
 这套结构有几个明确边界：
 
--   只有宿主机 Caddy 对公网开放 80/443。
--   Nginx 只监听宿主机 `127.0.0.1:8080`。
--   PHP-FPM、MariaDB 和 Redis 不向宿主机或公网映射端口。
--   WordPress 文件直接放在 `/opt/docker/blog/www/`，不会出现额外的 WordPress 目录层级。
+- 只有宿主机 Caddy 对公网开放 80/443。
+- Nginx 只监听宿主机 `127.0.0.1:8080`。
+- PHP-FPM、MariaDB 和 Redis 不向宿主机或公网映射端口。
+- WordPress 文件直接放在 `/opt/docker/blog/www/`，不会出现额外的 WordPress 目录层级。
 
 ## 二、完整目录结构
 
@@ -62,7 +62,7 @@ MariaDB / Redis（仅 Docker 内部网络）
 
 ## 三、关键配置文件全文
 
-### 1\. `.env.example`
+### 1. `.env.example`
 
 真实 `.env` 不公开。安装脚本会把占位符替换为域名、端口、项目名和随机生成的密码。
 
@@ -91,7 +91,7 @@ WORDPRESS_LOGGED_IN_SALT=__WORDPRESS_LOGGED_IN_SALT__
 WORDPRESS_NONCE_SALT=__WORDPRESS_NONCE_SALT__
 ```
 
-### 2\. `docker-compose.yml`
+### 2. `docker-compose.yml`
 
 四个容器共享 `blog` 网络。Nginx 只映射回环端口，MariaDB 和 Redis 不映射宿主机端口。
 
@@ -243,7 +243,7 @@ volumes:
     name: ${COMPOSE_PROJECT_NAME:-blog}-db-data
 ```
 
-### 3\. `Dockerfile`
+### 3. `Dockerfile`
 
 PHP 镜像包含 WordPress 常用的 MySQL、GD、EXIF、ZIP、Intl、BCMath 和 Redis 扩展。
 
@@ -302,7 +302,7 @@ EXPOSE 9000
 CMD ["php-fpm"]
 ```
 
-### 4\. `nginx/nginx.conf`
+### 4. `nginx/nginx.conf`
 
 ```nginx
 user nginx;
@@ -347,7 +347,7 @@ http {
 }
 ```
 
-### 5\. `nginx/default.conf`
+### 5. `nginx/default.conf`
 
 这个文件负责 WordPress 固定链接、PHP-FPM、真实访客 IP、静态缓存和敏感文件保护。
 
@@ -438,7 +438,7 @@ server {
 }
 ```
 
-### 6\. `php/conf.d/99-blog.ini`
+### 6. `php/conf.d/99-blog.ini`
 
 ```ini
 ; 基础设置
@@ -478,7 +478,7 @@ opcache.save_comments = 1
 date.timezone = Asia/Shanghai
 ```
 
-### 7\. `php/php-fpm.d/zz-blog.ini`
+### 7. `php/php-fpm.d/zz-blog.ini`
 
 ```ini
 [www]
@@ -503,7 +503,7 @@ request_terminate_timeout = 120s
 listen.backlog = 128
 ```
 
-### 8\. `www/wp-config.php`
+### 8. `www/wp-config.php`
 
 数据库和 WordPress 密钥全部从容器环境变量读取，不直接写进公开文件。
 
@@ -566,7 +566,7 @@ if (!defined('ABSPATH')) {
 require_once ABSPATH . 'wp-settings.php';
 ```
 
-### 9\. 宿主机 Caddy 站点配置
+### 9. 宿主机 Caddy 站点配置
 
 下面是标准 80/443 部署使用的站点配置。它只负责当前域名，不要求覆盖现有 `/etc/caddy/Caddyfile` 中的其他站点。
 
@@ -612,38 +612,38 @@ systemctl reload-or-restart caddy
 
 ## 五、权限、缓存与安全边界
 
--   `.env` 权限为 `0600`，其中密码只在首次运行时生成。
--   `www/wp-config.php` 权限为 `0640`，数据库配置不向其他宿主机用户公开。
--   默认 PHP-FPM 使用 `ondemand` 和最多 2 个子进程，适合低内存 VPS。
--   OPcache 默认开启，PHP 上传上限为 64MB。
--   Nginx 禁止上传目录执行 PHP，并屏蔽 `wp-config.php`、隐藏文件和说明文件。
--   固定链接使用 `/%postname%/`，不为旧日期链接提供兼容跳转。
--   Cloudflare SSL/TLS 建议使用 Full (strict)，宿主机 Caddy 继续持有有效域名证书。
--   数据库和上传目录需要定期备份，并复制到另一台机器，不能只留在本机。
+- `.env` 权限为 `0600`，其中密码只在首次运行时生成。
+- `www/wp-config.php` 权限为 `0640`，数据库配置不向其他宿主机用户公开。
+- 默认 PHP-FPM 使用 `ondemand` 和最多 2 个子进程，适合低内存 VPS。
+- OPcache 默认开启，PHP 上传上限为 64MB。
+- Nginx 禁止上传目录执行 PHP，并屏蔽 `wp-config.php`、隐藏文件和说明文件。
+- 固定链接使用 `/%postname%/`，不为旧日期链接提供兼容跳转。
+- Cloudflare SSL/TLS 建议使用 Full (strict)，宿主机 Caddy 继续持有有效域名证书。
+- 数据库和上传目录需要定期备份，并复制到另一台机器，不能只留在本机。
 
 ## 六、实际隔离测试
 
-我在一台 Debian 13 的隔离环境中，使用独立部署目录、独立 Caddy 配置目录、独立 Compose 项目和回环测试端口完成了实际验证。
+我在一台 Debian 13 隔离环境中完成验证：使用独立部署目录、独立 Caddy 配置目录、独立 Compose 项目与回环测试端口。
 
 验证结果包括：
 
--   Nginx、PHP-FPM、MariaDB、Redis 四个容器均为健康状态。
--   源站 `/wp-admin/install.php` 返回 `200`。
--   宿主机 Caddy 配置校验通过，公网 HTTPS 最终返回 `200`。
--   HTTP 返回 `308`，完整跳转为 `https://localhost:18443/wp-admin/install.php`。
--   不传域名和端口参数复跑时，仍能读取 `.env` 中的部署参数。
--   复跑前后 `.env`、Compose、Nginx、PHP 和 wp-config 的 SHA-256 均未变化。
--   Docker 子网与 Nginx 可信网关一致，FPM 和 OPcache 均已生效。
--   `www/wp-config.php` 权限为 `0640`，复跑不会递归修改整个 `www/` 的权限。
--   验证完成后，测试容器、网络、卷和目录均已清理。
+- Nginx、PHP-FPM、MariaDB、Redis 四个容器均为健康状态。
+- 源站 `/wp-admin/install.php` 返回 `200`。
+- 宿主机 Caddy 配置校验通过，公网 HTTPS 最终返回 `200`。
+- HTTP 返回 `308`，完整跳转为 `https://localhost:18443/wp-admin/install.php`。
+- 不传域名和端口参数复跑时，仍能读取 `.env` 中的部署参数。
+- 复跑前后 `.env`、Compose、Nginx、PHP 和 wp-config 的 SHA-256 均未变化。
+- Docker 子网与 Nginx 可信网关一致，FPM 和 OPcache 均已生效。
+- `www/wp-config.php` 权限为 `0640`，复跑不会递归修改整个 `www/` 的权限。
+- 验证完成后，测试容器、网络、卷和目录均已清理。
 
 ## 七、一键安装脚本
 
-下载包中包含安装脚本、全部配置模板和中文说明。脚本会根据这些模板生成配置，不会另外创造一套不同的目录或容器结构。
+下载包包含安装脚本、全部配置模板和中文说明；脚本按模板生成配置，不会另造一套目录或容器结构。
 
--   **下载：**[bwg-wordpress-one-click.zip](https://dahai.me/wp-content/uploads/2026/11/bwg-wordpress-one-click.zip)
--   **版本：**`2.0.2`
--   **ZIP SHA-256：**`3a6cb07e11b636dfbec1bbccfa393aec849323f5d564ff5e25c647e4cd50a1eb`
+- **下载：**[bwg-wordpress-one-click.zip](/downloads/bwg-wordpress-one-click.zip)
+- **版本：**`2.0.2`
+- **ZIP SHA-256：**`3a6cb07e11b636dfbec1bbccfa393aec849323f5d564ff5e25c647e4cd50a1eb`
 
 ### 使用方法
 

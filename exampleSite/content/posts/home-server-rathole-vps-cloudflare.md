@@ -1,5 +1,5 @@
 ---
-title: "没有公网 IPv4，也能把网站放在家里：rathole + 搬瓦工 VPS + Cloudflare 实战"
+title: "没有公网 IPv4？用 rathole 发布家庭网站"
 date: "2026-11-16T04:19:47+08:00"
 draft: false
 categories: ["家庭网络"]
@@ -8,9 +8,9 @@ description: "以家庭 PVE 虚拟机和 WordPress 为例，记录如何通过 r
 ---
 我有一台长期运行的家庭服务器，也有一台带公网 IP 的搬瓦工 VPS。家庭服务器适合跑应用和保存数据，但家庭宽带通常没有公网 IPv4，或者不方便在路由器上做端口映射；VPS 有公网入口，但配置、存储和带宽成本又未必适合承载所有服务。
 
-我最后采用的方式是：**网站和数据库运行在家庭服务器上，rathole 建立加密隧道，搬瓦工 VPS 上的 Caddy 作为统一入口，域名交给 Cloudflare 解析和代理。**
+最终方案：**网站和数据库留在家庭服务器，rathole 建立加密隧道，搬瓦工 VPS 上的 Caddy 作为统一入口，域名由 Cloudflare 解析和代理。**
 
-这套方案不需要家庭宽带拥有公网 IPv4，也不需要把路由器的某个端口直接暴露到互联网。家庭服务器只要能够主动连接 VPS，就可以向访客提供网站。
+这套方案既不要求家庭宽带拥有公网 IPv4，也不必在路由器上做端口映射。家庭服务器只要能主动连接 VPS，就能对外提供网站。
 
 > 本文以 `dahai.me` 和家庭服务器 `pve-service` 为例。公网 IP、密钥和访问令牌均使用占位符，实际部署时请替换成自己的值。
 
@@ -50,9 +50,9 @@ WordPress / PHP-FPM
 
 这里最容易混淆的是：**两端的 `12005` 并不是同一个监听 socket。**
 
--   VPS 上的 `127.0.0.1:12005` 由 rathole 服务端监听，供 Caddy 访问。
--   家庭服务器上的 `127.0.0.1:12005` 由网站 Nginx 容器映射，供 rathole 客户端访问。
--   rathole 负责把这两个端点连接起来。
+- VPS 上的 `127.0.0.1:12005` 由 rathole 服务端监听，供 Caddy 访问。
+- 家庭服务器上的 `127.0.0.1:12005` 由网站 Nginx 容器映射，供 rathole 客户端访问。
+- rathole 负责把这两个端点连接起来。
 
 使用相同的端口号只是为了让配置更容易理解，并不是强制要求。
 
@@ -87,10 +87,10 @@ rathole 服务端和客户端的版本最好保持一致，至少应先确认双
 
 其中：
 
--   `www` 保存 WordPress 程序、主题、插件和上传文件。
--   MariaDB 使用命名卷保存数据库。
--   Nginx 负责处理 HTTP 请求，再把 PHP 请求交给 PHP-FPM。
--   MariaDB 和 Redis 不映射宿主机端口，只允许 Compose 内部网络访问。
+- `www` 保存 WordPress 程序、主题、插件和上传文件。
+- MariaDB 使用命名卷保存数据库。
+- Nginx 负责处理 HTTP 请求，再把 PHP 请求交给 PHP-FPM。
+- MariaDB 和 Redis 不映射宿主机端口，只允许 Compose 内部网络访问。
 
 Nginx 服务最关键的端口配置是：
 
@@ -129,13 +129,13 @@ docker compose ps
 curl -I http://127.0.0.1:12005
 ```
 
-如果这里就无法访问，应该先检查容器、Nginx、PHP 或数据库，而不是急着排查 Cloudflare。
+若本机都不通，先查容器、Nginx、PHP 与数据库，不必急着排查 Cloudflare。
 
 ## 四、用 rathole 建立家庭到 VPS 的加密隧道
 
 rathole 的服务端和客户端由配置文件自动识别，不需要编译成两个不同程序。
 
-### 1\. 生成 Noise 密钥和独立服务令牌
+### 1. 生成 Noise 密钥和独立服务令牌
 
 执行以下命令生成用于 Noise 协议的密钥对：
 
@@ -145,8 +145,8 @@ rathole --genkey x25519
 
 命令会输出一对公钥和私钥：
 
--   `local_private_key` 放在 VPS 的服务端配置中。
--   `remote_public_key` 放在家庭服务器的客户端配置中。
+- `local_private_key` 放在 VPS 的服务端配置中。
+- `remote_public_key` 放在家庭服务器的客户端配置中。
 
 再为博客服务生成一个独立、足够长的随机令牌：
 
@@ -156,7 +156,7 @@ openssl rand -hex 32
 
 服务端和客户端的同一个服务必须使用相同令牌；不同服务不要共用令牌。
 
-### 2\. 配置搬瓦工 VPS 上的 rathole 服务端
+### 2. 配置搬瓦工 VPS 上的 rathole 服务端
 
 配置文件为 `/etc/rathole/server.toml`：
 
@@ -180,7 +180,7 @@ token = "<BLOG_SERVICE_TOKEN>"
 
 `12005` 则绑定在 `127.0.0.1`，只允许 VPS 本机的 Caddy 使用，不直接暴露到公网。
 
-### 3\. 配置家庭服务器上的 rathole 客户端
+### 3. 配置家庭服务器上的 rathole 客户端
 
 配置文件为 `/etc/rathole/client-us.toml`：
 
@@ -202,11 +202,11 @@ token = "<BLOG_SERVICE_TOKEN>"
 
 这里有三个对应关系：
 
--   `remote_addr` 必须指向 VPS 的 rathole 监听地址。
--   服务名 `pve-service-blog` 必须在两端一致。
--   `local_addr` 必须指向家庭服务器上真正运行的网站端口。
+- `remote_addr` 必须指向 VPS 的 rathole 监听地址。
+- 服务名 `pve-service-blog` 必须在两端一致。
+- `local_addr` 必须指向家庭服务器上真正运行的网站端口。
 
-### 4\. 使用 systemd 保持隧道运行
+### 4. 使用 systemd 保持隧道运行
 
 VPS 上的 `/etc/systemd/system/rathole.service`：
 
@@ -257,7 +257,7 @@ journalctl -u rathole-us.service -n 50 --no-pager
 curl -I http://127.0.0.1:12005
 ```
 
-此时家庭网站尚未配置公网域名。如果家庭服务器本机访问正常，而 VPS 上这条命令失败，问题基本就在 rathole、令牌、Noise 密钥或 VPS 的 `25100` 端口。
+此时尚未配置公网域名。若家庭本机正常、VPS 失败，问题通常出在 rathole、令牌、Noise 密钥或 `25100` 端口。
 
 ## 五、让 Cloudflare 把域名带到搬瓦工 VPS
 
@@ -275,10 +275,10 @@ SSL/TLS 模式建议使用 **Full (strict)**，并确保 VPS 上的 Caddy 能为
 
 VPS 防火墙需要允许：
 
--   TCP `80`：HTTP 和证书签发相关流量。
--   TCP `443`：HTTPS 入口。
--   UDP `443`：如需 HTTP/3。
--   TCP `25100`：家庭 rathole 客户端连接。
+- TCP `80`：HTTP 和证书签发相关流量。
+- TCP `443`：HTTPS 入口。
+- UDP `443`：如需 HTTP/3。
+- TCP `25100`：家庭 rathole 客户端连接。
 
 ## 六、使用 Caddy 按域名反向代理
 
@@ -328,8 +328,8 @@ webdav.example.com {
 
 Caddy 的全局配置中可使用 `trusted_proxies`、`trusted_proxies_strict` 和 `client_ip_headers`。Cloudflare 的网段可能变化，应以官方列表为准：
 
--   [https://www.cloudflare.com/ips-v4/](https://www.cloudflare.com/ips-v4/)
--   [https://www.cloudflare.com/ips-v6/](https://www.cloudflare.com/ips-v6/)
+- [https://www.cloudflare.com/ips-v4/](https://www.cloudflare.com/ips-v4/)
+- [https://www.cloudflare.com/ips-v6/](https://www.cloudflare.com/ips-v6/)
 
 家庭 Nginx 中的关键配置示例：
 
@@ -375,24 +375,24 @@ curl -I https://dahai.me
 
 最后还要实际测试：
 
--   首页和固定链接是否正常。
--   WordPress 后台能否登录和保存文章。
--   图片上传是否正常，上传大小是否超过 Nginx/PHP 限制。
--   主题、插件和缓存是否正常工作。
--   家庭宽带断开或 VPS 重启后，rathole 能否自动恢复。
+- 首页和固定链接是否正常。
+- WordPress 后台能否登录和保存文章。
+- 图片上传是否正常，上传大小是否超过 Nginx/PHP 限制。
+- 主题、插件和缓存是否正常工作。
+- 家庭宽带断开或 VPS 重启后，rathole 能否自动恢复。
 
 ## 九、安全边界比“能访问”更重要
 
 这套方案中，我特别注意以下几点：
 
--   网站端口只绑定家庭服务器的 `127.0.0.1`。
--   VPS 的 rathole 服务端口也只绑定 `127.0.0.1`，不让访客绕过 Caddy。
--   数据库和 Redis 不映射宿主机端口。
--   每个 rathole 服务使用独立随机令牌。
--   Noise 私钥、服务令牌和 `.env` 不提交到 Git，也不出现在公开文章里。
--   Caddy、rathole 和 Docker 容器均配置自动重启与健康检查。
--   定期备份 WordPress 文件、数据库和关键配置，并验证备份能否恢复。
--   不把 Cloudflare 代理当成访问控制；后台登录、更新和强密码仍然不可省略。
+- 网站端口只绑定家庭服务器的 `127.0.0.1`。
+- VPS 的 rathole 服务端口也只绑定 `127.0.0.1`，不让访客绕过 Caddy。
+- 数据库和 Redis 不映射宿主机端口。
+- 每个 rathole 服务使用独立随机令牌。
+- Noise 私钥、服务令牌和 `.env` 不提交到 Git，也不出现在公开文章里。
+- Caddy、rathole 和 Docker 容器均配置自动重启与健康检查。
+- 定期备份 WordPress 文件、数据库和关键配置，并验证备份能否恢复。
+- 不把 Cloudflare 代理当成访问控制；后台登录、更新和强密码仍然不可省略。
 
 如果域名全部经过 Cloudflare，还可以评估是否只让 Cloudflare 官方网段访问源站的 80/443。实施前需要确认 VPS 上是否还有必须直接访问的服务，避免误伤。
 
@@ -410,16 +410,16 @@ reverse_proxy 127.0.0.1:12005
 reverse_proxy 127.0.0.1:8080
 ```
 
-这两种部署可以在迁移或故障时互相切换，但切换前应同步 WordPress 文件、数据库、缓存和密钥，并做好备份。判断当前架构时，应同时检查 DNS、Caddy、实际监听端口和容器状态，而不能只看某一份遗留配置。
+两种部署可在迁移或故障时互相切换，但切换前需同步 WordPress 文件、数据库、缓存与密钥并做好备份。判断当前架构要看 DNS、Caddy、实际监听端口和容器状态，别只看遗留配置。
 
 ## 总结
 
 这套方案把不同机器的优势组合在了一起：
 
--   **家庭服务器**提供计算、存储和完整的应用控制权。
--   **rathole**解决家庭网络没有公网入口的问题，并提供加密传输。
--   **搬瓦工 VPS + Caddy**提供稳定的公网入口、自动 HTTPS 和统一反向代理。
--   **Cloudflare**提供 DNS、边缘 TLS、缓存和额外的网络防护。
+- **家庭服务器**提供计算、存储和完整的应用控制权。
+- **rathole**解决家庭网络没有公网入口的问题，并提供加密传输。
+- **搬瓦工 VPS + Caddy**提供稳定的公网入口、自动 HTTPS 和统一反向代理。
+- **Cloudflare**提供 DNS、边缘 TLS、缓存和额外的网络防护。
 
 它的代价是需要自己维护 VPS、隧道、密钥和多层配置。但只要把每一层的职责划分清楚，并按照“家庭本机 → VPS 隧道入口 → Caddy → Cloudflare”的顺序验证，部署和排障都不算复杂。
 
