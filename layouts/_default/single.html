@@ -3,7 +3,10 @@
 <div class="max-w-[1080px] mx-auto px-5 md:px-6 pb-8 md:pb-10 pt-10">
   <header class="relative overflow-hidden text-center mb-8">
     {{ if not $isPost }}{{ partial "sparkle.html" . }}{{ end }}
-    <h1 class="relative text-3xl md:text-4xl font-medium tracking-tight leading-snug text-foreground">{{ .Title }}</h1>
+    {{ $titleLen := strings.RuneCount .Title }}
+    {{ $titleSize := "text-3xl md:text-4xl" }}
+    {{ if gt $titleLen 46 }}{{ $titleSize = "text-lg" }}{{ else if gt $titleLen 36 }}{{ $titleSize = "text-xl" }}{{ else if gt $titleLen 24 }}{{ $titleSize = "text-2xl" }}{{ end }}
+    <h1 class="relative {{ $titleSize }} font-medium tracking-tight leading-snug text-foreground" style="text-wrap: balance">{{ .Title }}</h1>
     {{ if $isPost }}
     <div class="relative mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-mono text-sm text-muted-foreground">
       <time datetime="{{ .Date.Format "2006-01-02T15:04:05.000Z" }}">{{ partial "date-label.html" . }}</time>

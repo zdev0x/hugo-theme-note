@@ -16,14 +16,15 @@
 {{ $num := printf "%d" $words }}
 {{ $grouped := $num }}
 {{ if gt $words 999 }}
-  {{ $rev := "" }}
-  {{ $count := 0 }}
-  {{ range $i := seq (sub (len $num) 1) 0 -1 }}
-    {{ $rev = printf "%s%s" $rev (slice $num $i (add $i 1)) }}
-    {{ $count = add $count 1 }}
-    {{ if and (eq (mod $count 3) 0) (lt $i (sub (len $num) 1)) }}{{ $rev = printf "%s," $rev }}{{ end }}
+  {{ $len := len $num }}
+  {{ $lead := mod $len 3 }}
+  {{ if eq $lead 0 }}{{ $lead = 3 }}{{ end }}
+  {{ $grouped = "" }}
+  {{ range $i := seq 0 (sub $len 1) }}
+    {{ $grouped = printf "%s%s" $grouped (substr $num $i 1) }}
+    {{ $p := add $i 1 }}
+    {{ if and (ge $p $lead) (lt $p $len) (eq (mod (sub $p $lead) 3) 0) }}{{ $grouped = printf "%s," $grouped }}{{ end }}
   {{ end }}
-  {{ $grouped = $rev }}
 {{ end }}
 {{ if $compact }}
 <span>{{ $grouped }} 字 · {{ $minutes }} 分钟</span>
