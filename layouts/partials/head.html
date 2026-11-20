@@ -41,4 +41,4 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" type="application/atom+xml" title="{{ .Site.Title }}" href="{{ "/atom.xml" | relURL }}">
-<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/main.css{{ with .Site.Params.assetsVersion }}?v={{ . }}{{ end }}">
