@@ -8,6 +8,16 @@
 
 - 补充 screenshots：首页卡片、深色模式、搜索弹窗
 
+## [0.0.2] - 2026-11-20
+
+### 新增
+
+- Hugo 构建启用 `--minify`，压缩生成的 HTML / XML 输出
+
+### 变更
+
+- 项目标语更新为「清爽的 Hugo 博客主题 —— 手机端友好 · 深浅双主题 · 本地全文搜索」，README 与 `theme.toml` 保持一致
+
 ## [0.0.1] - 2026-11-20
 
 首个可用版本：一套基于 Hugo 的卡片式博客主题，深浅双主题、本地全文搜索、无 CDN 依赖。
@@ -35,5 +45,6 @@
 - 友链卡片被波浪线规则的 `padding-bottom` 覆盖导致错位
 - 代码块叠加浅色玻璃渐变后与 Chroma 浅色语法色对比度不足
 
-[未发布]: https://github.com/zdev0x/hugo-theme-note/compare/v0.0.1...HEAD
+[未发布]: https://github.com/zdev0x/hugo-theme-note/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/zdev0x/hugo-theme-note/releases/tag/v0.0.2
 [0.0.1]: https://github.com/zdev0x/hugo-theme-note/releases/tag/v0.0.1
