@@ -14,7 +14,7 @@
   {{ partial "backtotop.html" . }}
   {{ partial "search.html" . }}
 
-  <script src="/js/main.js" defer></script>
+  <script src="/js/main.js{{ with .Site.Params.assetsVersion }}?v={{ . }}{{ end }}" defer></script>
   {{ block "scripts" . }}{{ end }}
 </body>
 </html>

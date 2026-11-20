@@ -149,8 +149,33 @@ body { background: var(--color-background); color: var(--color-foreground); }
 /* Standard flow blocks get one 1rem bottom gap; tile grids keep their own `my-6` */
 #markdown p, #markdown blockquote, #markdown ul, #markdown ol,
 #markdown table, #markdown pre, #markdown details { margin-top: 0; margin-bottom: 1rem; }
-#markdown a { color: var(--color-foreground); text-decoration: underline; text-decoration-color: var(--color-hairline-strong); text-underline-offset: 3px; }
-#markdown a:hover { text-decoration-color: var(--color-foreground); }
+/* Wavy underline, expanding on hover; mirrors u.sb's signature link treatment.
+   The wave image and --link-wave variables are defined in :root / [data-theme]. */
+#markdown a {
+  color: var(--color-foreground);
+  text-decoration: none;
+  background-image: var(--wave-image);
+  background-repeat: repeat-x;
+  background-position: 0 100%;
+  background-size: 0 6px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding-bottom: 4px;
+  font-weight: 500;
+  transition: background-size .2s ease, color .2s ease;
+}
+#markdown a:hover { color: var(--link-wave); background-size: 20px 6px; }
+/* Tiles, explicit no-wave links, and heading anchors keep their own styling. */
+#markdown a.tile-link,
+#markdown a.no-wave,
+#markdown .heading-anchor { background-image: none; padding-bottom: 0; font-weight: inherit; }
+#site-nav .nav-active {
+  background-image: var(--wave-image);
+  background-position: 0 100%;
+  background-repeat: repeat-x;
+  background-size: 20px 6px;
+  padding-bottom: 4px;
+}
 #markdown strong { font-weight: 600; color: var(--color-foreground); }
 #markdown ul, #markdown ol { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1.75em; }
 #markdown ul { list-style: disc; }
@@ -172,17 +197,69 @@ body { background: var(--color-background); color: var(--color-foreground); }
   font-size: .9em;
 }
 #markdown pre {
-  background: var(--code-bg);
+  position: relative;
+  background-color: var(--code-bg);
+  background-image: var(--code-glass);
   color: var(--code-fg);
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  padding: 1rem 1.25rem;
-  overflow-x: auto;
+  padding: 2.25rem 1.25rem 1rem;
+  overflow: auto;
   font-family: var(--font-mono);
   font-size: .95em;
   line-height: 1.45;
+  box-shadow: var(--code-glass-shadow);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
-#markdown pre code { background: none; padding: 0; }
+/* Mac-style window dots */
+#markdown pre::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff5f57;
+  box-shadow: 15px 0 #febc2e, 30px 0 #28c840;
+  pointer-events: none;
+}
+#markdown pre code { background: none; padding: 0; display: block; }
+/* Line highlight: Chroma's flex line spans, plus JS-normalized .code-line */
+#markdown pre code > span[style*="display:flex"],
+#markdown pre code > span[style*="display: flex"],
+#markdown pre code > .code-line {
+  display: block;
+  margin: 0 -1.25rem;
+  padding: 2px 1.25rem;
+  background-image: linear-gradient(90deg, var(--code-line-highlight), var(--code-line-highlight));
+  background-repeat: no-repeat;
+  background-size: 0 100%;
+  transition: background-size .25s ease;
+}
+#markdown pre code > span:hover { background-size: 100% 100%; }
+/* Copy button injected by main.js */
+.code-copy {
+  position: absolute;
+  top: 9px;
+  right: 12px;
+  z-index: 2;
+  font-size: .72rem;
+  font-family: var(--font-mono);
+  color: var(--color-muted-foreground);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 2px 7px;
+  background: var(--code-glass-solid);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .2s, color .2s, border-color .2s;
+}
+#markdown pre:hover .code-copy,
+.code-copy:focus-visible { opacity: 1; }
+.code-copy:hover { color: var(--link-wave); border-color: var(--link-wave); }
+.code-copy.copied { color: var(--link-wave); }
 #markdown table { width: 100%; border-collapse: collapse; border: 1px solid var(--color-border); border-radius: 12px; font-size: .95em; display: block; overflow-x: auto; }
 #markdown th, #markdown td { border: 1px solid var(--color-border); padding: .5rem .9375rem; text-align: left; }
 #markdown th { background: var(--color-secondary); color: var(--color-foreground); font-weight: 600; }
@@ -243,6 +320,43 @@ html.theme-vt::view-transition-new(root) {
 #theme-toggle svg { transition: opacity .2s ease, transform .35s cubic-bezier(.4, 0, .2, 1); }
 #theme-toggle:active svg { transform: rotate(-18deg) scale(.9); }
 [data-theme="dark"] #theme-toggle .icon-moon { transform: rotate(20deg); }
+
+/* ===== Tooltip (opt-in via data-tooltip) ===== */
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  color: #fff;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1000;
+  pointer-events: none;
+  background-color: #151917;
+  border-radius: 6px;
+  font-size: .75rem;
+  padding: .3rem .5rem;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  transition: opacity .2s, visibility .2s;
+}
+[data-tooltip]::before {
+  content: "";
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1000;
+  pointer-events: none;
+  border: 6px solid transparent;
+  border-top-color: #151917;
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  transition: opacity .2s, visibility .2s;
+}
+[data-tooltip]:hover::after,
+[data-tooltip]:hover::before { opacity: 1; visibility: visible; }
 
 /* Sparkle field respects reduced motion */
 @media (prefers-reduced-motion: reduce) {

@@ -22,7 +22,7 @@
     <a href="mailto:?subject={{ $encT }}&amp;body={{ $encU }}" aria-label="通过邮件分享" class="flex items-center justify-center text-muted-foreground hover:text-foreground dark:hover:text-(--link-wave) transition-[color,transform] duration-150 ease-out active:scale-95">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke="currentColor" class="w-[18px] h-[18px]" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2" stroke-linejoin="round"/><path stroke-linecap="round" stroke-linejoin="round" d="m3 6 9 7 9-7"/></svg>
     </a>
-    <button id="share-copy" type="button" data-url="{{ $u }}" data-title="{{ $t }}" aria-label="复制链接" class="flex items-center justify-center text-muted-foreground hover:text-foreground dark:hover:text-(--link-wave) transition-[color,transform] duration-150 ease-out active:scale-95 cursor-pointer">
+    <button id="share-copy" type="button" data-url="{{ $u }}" data-title="{{ $t }}" data-tooltip="复制链接" aria-label="复制链接" class="flex items-center justify-center text-muted-foreground hover:text-foreground dark:hover:text-(--link-wave) transition-[color,transform] duration-150 ease-out active:scale-95 cursor-pointer">
       <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2-10.5A2.5 2.5 0 0 0 14.5 3h-5A2.5 2.5 0 0 0 7 5.5v13A2.5 2.5 0 0 0 9.5 21h5a2.5 2.5 0 0 0 2.5-2.5v-13Z"/></svg>
     </button>
   </div>

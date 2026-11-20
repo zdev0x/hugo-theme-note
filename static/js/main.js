@@ -94,4 +94,55 @@
       }
     });
   }
+
+  // Code blocks: normalize lines for hover highlight, add a copy button.
+  document.querySelectorAll('#markdown pre').forEach(function (pre) {
+    var code = pre.querySelector('code');
+    if (!code) return;
+
+    // Chroma emits flex line spans for highlighted code; plain fenced blocks
+    // have raw text only, so wrap each line to get the same hover cue.
+    var spans = code.children;
+    var hasLines = spans.length > 0 && Array.prototype.every.call(spans, function (el) {
+      return el.classList.contains('code-line') || (el.style && el.style.display === 'flex');
+    });
+    if (!hasLines && code.textContent.indexOf('\n') !== -1) {
+      var lines = code.textContent.replace(/\n$/, '').split('\n');
+      code.textContent = '';
+      lines.forEach(function (line) {
+        var span = document.createElement('span');
+        span.className = 'code-line';
+        span.textContent = line;
+        code.appendChild(span);
+        code.appendChild(document.createTextNode('\n'));
+      });
+    }
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'code-copy';
+    btn.setAttribute('data-tooltip', '复制代码');
+    btn.setAttribute('aria-label', '复制代码');
+    btn.textContent = '复制';
+    btn.addEventListener('click', function () {
+      var text = code.innerText;
+      var done = function () {
+        btn.textContent = '已复制';
+        btn.classList.add('copied');
+        window.setTimeout(function () {
+          btn.textContent = '复制';
+          btn.classList.remove('copied');
+        }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {});
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+    });
+    pre.appendChild(btn);
+  });
 })();
